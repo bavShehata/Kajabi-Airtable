@@ -32,14 +32,16 @@ Airtable.configure({
 });
 var base = Airtable.base("apppMCZ2SaWlLJvYq");
 
-var body = [];
 app.get("/airtable", async (req, res) => {
+  var body = [];
+  const email = req.query.email;
+  console.log("EMAIL: ", email);
   base("Members")
     .select({
-      // Selecting the first 4 records in Grid view:
-      maxRecords: 4,
+      // Selecting the first record in Grid view: (Should be only one anyways)
+      maxRecords: 1,
       view: "Grid view",
-      filterByFormula: "{Email} = 'bavshehata@gmail.com'",
+      filterByFormula: `{Email} = "${email}"`,
     })
     .firstPage(function (err, records) {
       if (err) {
