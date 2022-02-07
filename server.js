@@ -32,6 +32,7 @@ Airtable.configure({
 });
 var base = Airtable.base("apppMCZ2SaWlLJvYq");
 
+var body = [{}];
 app.get("/airtable", async (req, res) => {
   base("Members")
     .select({
@@ -45,6 +46,7 @@ app.get("/airtable", async (req, res) => {
 
         records.forEach(function (record) {
           console.log("Retrieved", record.get("Name"));
+          body.push(record.fields);
         });
 
         // To fetch the next page of records, call `fetchNextPage`.
@@ -57,6 +59,7 @@ app.get("/airtable", async (req, res) => {
           console.error(err);
           return;
         }
+        res.send(body);
       }
     );
   try {
