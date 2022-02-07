@@ -101,7 +101,7 @@ app.get("/airtable", async (req, res) => {
         records.forEach(function (record) {
           console.log("Retrieved", record.get("Name"));
           // Add the record to an array
-          member.info.push(record.fields);
+          member.payments.push(record.fields);
           console.log(member);
           resolve(records[0].fields);
         });
