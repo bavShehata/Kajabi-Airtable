@@ -33,26 +33,79 @@ Airtable.configure({
 var base = Airtable.base("apppMCZ2SaWlLJvYq");
 
 app.get("/airtable", async (req, res) => {
-  var body = [];
+  var member = {
+    info: [],
+    earnings: [],
+    payments: [],
+  };
   const email = req.query.email;
   console.log("EMAIL: ", email);
-  base("Members")
-    .select({
-      // Selecting the first record in Grid view: (Should be only one anyways)
-      maxRecords: 1,
-      view: "Grid view",
-      filterByFormula: `{Email} = "${email}"`,
-    })
-    .firstPage(function (err, records) {
-      if (err) {
-        console.error(err);
-        return;
-      }
-      records.forEach(function (record) {
-        console.log("Retrieved", record.get("Name"));
-        // Add the record to an array
-        body.push(record.fields);
+
+  // Get member's info
+  await new Promise((resolve, reject) => {
+    base("Members")
+      .select({
+        view: "Grid view",
+        filterByFormula: `{Email} = "${email}"`,
+        fields: ["Name", "Email", "Balance", "Updated"],
+      })
+      .firstPage(function (err, records) {
+        if (err) {
+          console.error(err);
+          return reject({});
+        }
+        records.forEach(function (record) {
+          console.log("Retrieved", record.get("Name"));
+          // Add the record to an array
+          member.info.push(record.fields);
+        });
+        resolve(records[0].fields);
       });
-      res.send(body);
-    });
+  });
+
+  // Get member's earnings
+  await new Promise((resolve, reject) => {
+    base("Earnings")
+      .select({
+        view: "Grid view",
+        filterByFormula: `{Email (from Member)} = "${email}"`,
+        fields: ["Program", "Earnings", "Created"],
+      })
+      .firstPage(function (err, records) {
+        if (err) {
+          console.error(err);
+          return reject({});
+        }
+        records.forEach(function (record) {
+          console.log("Retrieved", record.get("Program"));
+          // Add the record to an array
+          member.earnings.push(record.fields);
+        });
+        resolve(records[0].fields);
+      });
+  });
+
+  // Get member's payments
+  await new Promise((resolve, reject) => {
+    base("Payments")
+      .select({
+        view: "Grid view",
+        filterByFormula: `{Email (from Member)} = "${email}"`,
+        fields: ["Product", "Amount", "Created"],
+      })
+      .firstPage(function (err, records) {
+        if (err) {
+          console.error(err);
+          return reject({});
+        }
+        records.forEach(function (record) {
+          console.log("Retrieved", record.get("Name"));
+          // Add the record to an array
+          member.info.push(record.fields);
+          console.log(member);
+          resolve(records[0].fields);
+        });
+      });
+  });
+  res.send(member);
 });
