@@ -32,36 +32,25 @@ Airtable.configure({
 });
 var base = Airtable.base("apppMCZ2SaWlLJvYq");
 
-var body = [{}];
+var body = [];
 app.get("/airtable", async (req, res) => {
   base("Members")
     .select({
-      // Selecting the first 3 records in Grid view:
+      // Selecting the first 4 records in Grid view:
       maxRecords: 4,
       view: "Grid view",
+      filterByFormula: "{Email} = 'bavshehata@gmail.com'",
     })
-    .eachPage(
-      function page(records, fetchNextPage) {
-        // This function (`page`) will get called for each page of records.
-
-        records.forEach(function (record) {
-          console.log("Retrieved", record.get("Name"));
-          body.push(record.fields);
-        });
-
-        // To fetch the next page of records, call `fetchNextPage`.
-        // If there are more records, `page` will get called again.
-        // If there are no more records, `done` will get called.
-        fetchNextPage();
-      },
-      function done(err) {
-        if (err) {
-          console.error(err);
-          return;
-        }
-        res.send(body);
+    .firstPage(function (err, records) {
+      if (err) {
+        console.error(err);
+        return;
       }
-    );
-  try {
-  } catch (e) {}
+      records.forEach(function (record) {
+        console.log("Retrieved", record.get("Name"));
+        // Add the record to an array
+        body.push(record.fields);
+      });
+      res.send(body);
+    });
 });
