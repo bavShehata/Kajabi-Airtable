@@ -42,27 +42,31 @@ app.get("/airtable", async (req, res) => {
   console.log("EMAIL: ", email);
 
   // Get member's info
-  await new Promise((resolve, reject) => {
-    base("Members")
-      .select({
-        view: "Grid view",
-        filterByFormula: `{Email} = "${email}"`,
-        fields: ["Name", "Email", "Balance", "Updated"],
-      })
-      .firstPage(function (err, records) {
-        if (err) {
-          console.error(err);
-          return reject({});
-        }
-        records.forEach(function (record) {
-          console.log("Retrieved", record.get("Name"));
-          // Add the record to an array
-          member.info.push(record.fields);
+  try {
+    await new Promise((resolve, reject) => {
+      base("Members")
+        .select({
+          view: "Grid view",
+          filterByFormula: `{Email} = "${email}"`,
+          fields: ["Name", "Email", "Balance", "Updated"],
+        })
+        .firstPage(function (err, records) {
+          if (err) {
+            console.error(err);
+            return reject({});
+          }
+          records.forEach(function (record) {
+            console.log("Retrieved", record.get("Name"));
+            // Add the record to an array
+            member.info.push(record.fields);
+          });
+          resolve(records[0].fields);
         });
-        resolve(records[0].fields);
-      });
-  });
-
+    });
+  } catch (e) {
+    console.log("Couldn't find member record", e);
+    res.send({ error: 1 });
+  }
   // Get member's earnings
   await new Promise((resolve, reject) => {
     base("Earnings")
