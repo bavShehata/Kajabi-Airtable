@@ -40,7 +40,7 @@ app.get("/airtable", async (req, res) => {
   };
   const email = req.query.email;
   console.log("EMAIL: ", email);
-  if (!email) res.send({ error: 1, message: "You are not logged in" });
+  if (!email) return res.send({ error: 1, message: "You are not logged in" });
   // Get member's info
   try {
     await new Promise((resolve, reject) => {
@@ -65,7 +65,7 @@ app.get("/airtable", async (req, res) => {
     });
   } catch (e) {
     console.log("Couldn't find member record", e);
-    res.send({ error: 1, message: "Couldn't find member record" });
+    return res.send({ error: 1, message: "Couldn't find member record" });
   }
   // Get member's earnings
   try {
@@ -91,7 +91,7 @@ app.get("/airtable", async (req, res) => {
     });
   } catch (e) {
     console.log("Couldn't find earnings record", e);
-    res.send({ error: 1, message: "Couldn't find earnings record" });
+    return res.send({ error: 1, message: "Couldn't find earnings record" });
   }
 
   // Get member's payments
@@ -118,7 +118,7 @@ app.get("/airtable", async (req, res) => {
     });
   } catch (e) {
     console.log("Couldn't find payment record", e);
-    res.send({ error: 1, message: "Couldn't find payment record" });
+    return res.send({ error: 1, message: "Couldn't find payment record" });
   }
-  res.send(member);
+  return res.send(member);
 });
