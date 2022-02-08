@@ -68,48 +68,58 @@ app.get("/airtable", async (req, res) => {
     res.send({ error: 1 });
   }
   // Get member's earnings
-  await new Promise((resolve, reject) => {
-    base("Earnings")
-      .select({
-        view: "Grid view",
-        filterByFormula: `{Email (from Member)} = "${email}"`,
-        fields: ["Program", "Earnings", "Created"],
-      })
-      .firstPage(function (err, records) {
-        if (err) {
-          console.error(err);
-          return reject({});
-        }
-        records.forEach(function (record) {
-          console.log("Retrieved", record.get("Program"));
-          // Add the record to an array
-          member.earnings.push(record.fields);
-        });
-        resolve(records[0].fields);
-      });
-  });
-
-  // Get member's payments
-  await new Promise((resolve, reject) => {
-    base("Payments")
-      .select({
-        view: "Grid view",
-        filterByFormula: `{Email (from Member)} = "${email}"`,
-        fields: ["Product", "Amount", "Created"],
-      })
-      .firstPage(function (err, records) {
-        if (err) {
-          console.error(err);
-          return reject({});
-        }
-        records.forEach(function (record) {
-          console.log("Retrieved", record.get("Name"));
-          // Add the record to an array
-          member.payments.push(record.fields);
-          console.log(member);
+  try {
+    await new Promise((resolve, reject) => {
+      base("Earnings")
+        .select({
+          view: "Grid view",
+          filterByFormula: `{Email (from Member)} = "${email}"`,
+          fields: ["Program", "Earnings", "Created"],
+        })
+        .firstPage(function (err, records) {
+          if (err) {
+            console.error(err);
+            return reject({});
+          }
+          records.forEach(function (record) {
+            console.log("Retrieved", record.get("Program"));
+            // Add the record to an array
+            member.earnings.push(record.fields);
+          });
           resolve(records[0].fields);
         });
-      });
-  });
+    });
+  } catch (e) {
+    console.log("Couldn't find earnings record", e);
+    res.send({ error: 1 });
+  }
+
+  // Get member's payments
+  try {
+    await new Promise((resolve, reject) => {
+      base("Payments")
+        .select({
+          view: "Grid view",
+          filterByFormula: `{Email (from Member)} = "${email}"`,
+          fields: ["Product", "Amount", "Created"],
+        })
+        .firstPage(function (err, records) {
+          if (err) {
+            console.error(err);
+            return reject({});
+          }
+          records.forEach(function (record) {
+            console.log("Retrieved", record.get("Name"));
+            // Add the record to an array
+            member.payments.push(record.fields);
+            console.log(member);
+            resolve(records[0].fields);
+          });
+        });
+    });
+  } catch (e) {
+    console.log("Couldn't find payment record", e);
+    res.send({ error: 1 });
+  }
   res.send(member);
 });
