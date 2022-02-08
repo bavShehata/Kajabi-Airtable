@@ -58,7 +58,7 @@ app.get("/airtable", async (req, res) => {
         .select({
           view: "Grid view",
           filterByFormula: `{Email} = "${email}"`,
-          fields: ["Name", "Email", "Balance", "Updated"],
+          fields: ["Name", "Email", "Balance (WIO)", "Updated"],
         })
         .firstPage(function (err, records) {
           if (err || records.length == 0) {
@@ -85,8 +85,8 @@ app.get("/airtable", async (req, res) => {
       base("Earnings")
         .select({
           view: "Grid view",
-          filterByFormula: `{Email (from Member)} = "${email}"`,
-          fields: ["Program", "Earnings", "Created"],
+          filterByFormula: `{Member} = "${email}"`,
+          fields: ["Program", "Earnings (WIO)", "Created"],
         })
         .firstPage(function (err, records) {
           if (err) {
@@ -114,8 +114,14 @@ app.get("/airtable", async (req, res) => {
       base("Payments")
         .select({
           view: "Grid view",
-          filterByFormula: `{Email (from Member)} = "${email}"`,
-          fields: ["Product", "Amount", "Created"],
+          filterByFormula: `{Member} = "${email}"`,
+          fields: [
+            "Product",
+            "Amount (USD)",
+            "Created",
+            "Token Price (USD)",
+            "Tokens Received (WIO)",
+          ],
         })
         .firstPage(function (err, records) {
           if (err) {
