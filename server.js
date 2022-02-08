@@ -32,6 +32,16 @@ Airtable.configure({
 });
 var base = Airtable.base("apppMCZ2SaWlLJvYq");
 
+const formatDate = (oldDate) => {
+  const newDate = Date.parse(oldDate);
+  const finalDate = new Date(newDate);
+  const options = {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  };
+  return finalDate.toLocaleString("en-US", options);
+};
 app.get("/airtable", async (req, res) => {
   var member = {
     info: [],
@@ -57,6 +67,8 @@ app.get("/airtable", async (req, res) => {
           }
           records.forEach(function (record) {
             console.log("Retrieved", record.get("Name"));
+            const oldDate = record.get("Updated");
+            record.fields.Updated = formatDate(oldDate);
             // Add the record to an array
             member.info.push(record.fields);
           });
@@ -83,6 +95,8 @@ app.get("/airtable", async (req, res) => {
           }
           records.forEach(function (record) {
             console.log("Retrieved", record.get("Program"));
+            const oldDate = record.get("Created");
+            record.fields.Created = formatDate(oldDate);
             // Add the record to an array
             member.earnings.push(record.fields);
           });
@@ -109,7 +123,9 @@ app.get("/airtable", async (req, res) => {
             return reject({});
           }
           records.forEach(function (record) {
-            console.log("Retrieved", record.get("Name"));
+            console.log("Retrieved", record.get("Product"));
+            const oldDate = record.get("Created");
+            record.fields.Created = formatDate(oldDate);
             // Add the record to an array
             member.payments.push(record.fields);
           });
